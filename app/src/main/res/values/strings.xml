@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">gorotate</string>
+
+    <string name="write_settings_permission_granted">設定変更の権限: 許可済み</string>
+    <string name="write_settings_permission_not_granted">設定変更の権限: 未許可</string>
+    <string name="btn_grant_write_settings_permission">設定変更を許可する</string>
+
+    <string name="description">権限を許可した後、クイック設定パネルを編集して\n「回転トグル」タイルを追加してください</string>
+
+    <string name="toast_rotation_portrait">縦向きに戻しました</string>
+    <string name="toast_rotation_landscape_left">左に回転しました(横向き)</string>
+    <string name="toast_rotation_landscape_right">右に回転しました(横向き)</string>
+    <string name="toast_no_write_settings_permission">設定変更の権限が必要です</string>
+</resources>
