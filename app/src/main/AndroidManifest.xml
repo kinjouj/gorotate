@@ -20,7 +20,6 @@
         <service
             android:name=".RotateTileService"
             android:exported="true"
-            android:label=""
             android:icon="@drawable/ic_tile_rotate"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
