@@ -19,6 +19,7 @@ class RotateTileService : TileService(), SensorEventListener {
 
     companion object {
         private const val GRAVITY_FILTER_ALPHA = 0.8f
+        private const val GRAVITY_THRESHOLD = 5.0f
     }
 
     private lateinit var sensorManager: SensorManager
@@ -70,6 +71,19 @@ class RotateTileService : TileService(), SensorEventListener {
         if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             gravityX = GRAVITY_FILTER_ALPHA * gravityX + (1 - GRAVITY_FILTER_ALPHA) * event.values[0]
             gravityY = GRAVITY_FILTER_ALPHA * gravityY + (1 - GRAVITY_FILTER_ALPHA) * event.values[1]
+
+            if (!Settings.System.canWrite(this)) return
+
+            val currentRotation = Settings.System.getInt(contentResolver, Settings.System.USER_ROTATION, Surface.ROTATION_0)
+            if (currentRotation != Surface.ROTATION_90 && currentRotation != Surface.ROTATION_270) return
+
+            if (Math.abs(gravityX) < GRAVITY_THRESHOLD) return
+
+            val suggestedRotation = if (gravityX >= 0) Surface.ROTATION_90 else Surface.ROTATION_270
+            if (suggestedRotation != currentRotation) {
+                Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, suggestedRotation)
+                updateTileState()
+            }
         }
     }
 
