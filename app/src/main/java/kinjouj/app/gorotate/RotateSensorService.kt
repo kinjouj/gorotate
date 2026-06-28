@@ -38,6 +38,7 @@ class RotateSensorService : Service(), SensorEventListener {
         accelerometer?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
         }
+
         return START_STICKY
     }
 
@@ -49,16 +50,28 @@ class RotateSensorService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onSensorChanged(event: SensorEvent) {
-        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) {
+          return
+        }
+
         gravityX = GRAVITY_FILTER_ALPHA * gravityX + (1 - GRAVITY_FILTER_ALPHA) * event.values[0]
 
-        if (!Settings.System.canWrite(this)) return
+        if (!Settings.System.canWrite(this)) {
+          return
+        }
 
         val currentRotation = Settings.System.getInt(contentResolver, Settings.System.USER_ROTATION, Surface.ROTATION_0)
-        if (currentRotation != Surface.ROTATION_90 && currentRotation != Surface.ROTATION_270) return
-        if (Math.abs(gravityX) < GRAVITY_THRESHOLD) return
+
+        if (currentRotation != Surface.ROTATION_90 && currentRotation != Surface.ROTATION_270) {
+          return
+        }
+
+        if (Math.abs(gravityX) < GRAVITY_THRESHOLD) {
+          return
+        }
 
         val suggestedRotation = if (gravityX >= 0) Surface.ROTATION_90 else Surface.ROTATION_270
+
         if (suggestedRotation != currentRotation) {
             Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, suggestedRotation)
         }
@@ -68,17 +81,12 @@ class RotateSensorService : Service(), SensorEventListener {
 
     private fun createNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "画面回転センサー",
-                NotificationManager.IMPORTANCE_LOW
-            )
+            val channel = NotificationChannel(CHANNEL_ID, "画面回転センサー", NotificationManager.IMPORTANCE_LOW)
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText("横向き自動補正が有効です")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .build()
+        return Notification.Builder(this, CHANNEL_ID).setContentTitle(getString(R.string.app_name))
+                                                     .setContentText("横向き自動補正が有効です")
+                                                     .setSmallIcon(R.mipmap.ic_launcher)
+                                                     .build()
     }
 }
